@@ -1,0 +1,43 @@
+# This is the name of the workflow. It can be anything you like.
+name: Deploy to Replit
+
+# This specifies when the workflow should run. In this case, it runs on every push to the main branch.
+on:
+  push:
+    branches:
+      - main
+
+# This defines the jobs that will be run as part of this workflow.
+jobs:
+  deploy:
+    # This specifies the type of virtual machine to run the job on. 'ubuntu-latest' is a version of the Ubuntu operating system.
+    runs-on: ubuntu-latest
+
+    # Steps are the individual tasks that will be performed as part of this job.
+    steps:
+      # This step checks out your code from the repository.
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # This step sets up Node.js, which is a JavaScript runtime environment that lets you run JavaScript code outside a web browser.
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Specifies the version of Node.js to use.
+
+      # This step installs the dependencies listed in your package.json file using npm (Node Package Manager).
+      - name: Install dependencies
+        run: npm install
+
+      # This step deploys the code to Replit using a curl command. 'curl' is a tool to transfer data from or to a server.
+      - name: Deploy to Replit
+        env:
+          REPLIT_TOKEN: ${{ secrets.REPLIT_TOKEN }}  # Uses the Replit API token stored in GitHub secrets.
+        run: |
+          curl -X POST "https://replit.com/api/v0/deploy" \
+          -H "Authorization: Bearer $REPLIT_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "project": "your-replit-project-url",  # Replace this with the URL of your Replit project.
+            "branch": "main"
+          }'
